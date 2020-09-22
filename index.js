@@ -3,26 +3,26 @@ const fs = require("fs");
 const request = require("request");
 
 (async () => {
-
   // Take argument from CLI
   let argument = process.argv[2];
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(argument.toString());
 
   let doc = await page.evaluate(async () => {
-
     // Take only tags with img attribute
-    let images = document.getElementsByTagName("img");
+    let images = document.getElementsByClassName("img-thumbnail");
+
+    // let requiredImages = [...images].map(item => item)
 
     let imagesArr = [...images];
 
     let imgSrc = [];
 
     imagesArr.forEach((element) => {
-      element.src.includes(".jpg") &&
-        !element.src.includes("0_0") &&
-        imgSrc.push(element.src);
+      //   element.src.includes(".jpg") &&
+      // !element.src.includes("0_0") &&
+      imgSrc.push(element.src);
     });
 
     return imgSrc;
@@ -44,8 +44,10 @@ const request = require("request");
 
   //   Download and move files to the created directory
   doc.forEach((item, i) => {
-    download(item, `${i}.jpg`, function () {
-      fs.rename(`./${i}.jpg`, `./${timestamp}/${i}.jpg`, function (err) {
+    let actualImage = item.toString();
+    //  .split(".jpg")[0].join("")
+    download(actualImage, `${i}.webp`, function () {
+      fs.rename(`./${i}.webp`, `./${timestamp}/${i}.webp`, function (err) {
         if (err) throw err;
         console.log("Successfully downloaded...");
       });
